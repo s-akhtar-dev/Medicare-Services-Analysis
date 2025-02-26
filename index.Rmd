@@ -811,7 +811,7 @@ This output presents the results of a linear regression analysis examining the r
 
 ```{r analysis-regression-2.2}
 # Relationship Between Total Providers and Total Beneficiaries (Outliers Removed)
-ggplot(medicare_adjust, aes(total_beneficiaries, total_providers)) +
+ggplot(medicare_adjust, aes(total_providers, total_beneficiaries)) +
   geom_point(alpha = 0.75, color = "navyblue", fill = "turquoise1", shape = 21, size = 2, stroke = 0.5) +
   geom_smooth(method = "lm", color = "black", se = FALSE) +
   labs(
