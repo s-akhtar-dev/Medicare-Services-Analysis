@@ -892,6 +892,59 @@ This analysis examines the difference in average Medicare payment amounts betwee
 t.test(total_services ~ provider_geo_level, data = medicare)
 ```
 
+To demonstrate the relationship between these two variables within the form of a bar graph, the results first must be saved into a variable after conducting the t-test.
+
+```{r analysis-t-test-1.3.1}
+# Storing t-test Results: Total Services vs. Provider Geographic Level for Plotting
+t_test_results <- t.test(total_services ~ provider_geo_level, data = medicare)
+```
+
+The results can be further summarized by grouping functions and creating the mean from the t-test. The lower and upper intervals are also calculated to display within the bar graph.
+
+```{r analysis-t-test-1.3.2}
+# Summarizing t-test: Total Services vs. Provider Geographic Level
+summary_data <- medicare %>%
+  group_by(provider_geo_level) %>%
+  summarise(
+    mean = mean(total_services),
+    se = sd(total_services) / sqrt(n()),
+    ci_lower = mean - qt(0.975, df = n() - 1) * se,
+    ci_upper = mean + qt(0.975, df = n() - 1) * se
+  )
+```
+
+From summarizing are storing the data, the following snippet plots the bar graph to demonstrate the difference between the National and State levels of Medicare.
+
+```{r analysis-t-test-1.3.3}
+# Creating Gradient: Total Services vs. Provider Geographic Level
+gradient_fill <- scale_fill_gradient(low = "royalblue1", high = "brown2")
+
+suppressWarnings({
+# Plotting Data: Total Services vs. Provider Geographic Level
+ggplot(summary_data, aes(x = provider_geo_level, y = mean, fill = mean)) +
+  geom_bar(stat = "identity", position = position_dodge(), 
+           color = "black", size = 0.5) + # Add black outline
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2, position = position_dodge(0.9)) +
+  labs(
+    title = "Comparison of Total Services by Provider Geographic Level",
+    subtitle = paste("t =", round(t_test_results$statistic, 2), 
+                     ", df =", round(t_test_results$parameter, 2),
+                     ", p-value =", format.pval(t_test_results$p.value, digits = 3)),
+    x = "Provider Geographic Level",
+    y = "Mean Total Services"
+  ) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  gradient_fill +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "none",
+    panel.grid.major = element_line(color = "gray90"),
+    panel.grid.minor = element_line(color = "gray95")
+  )
+})
+```
+
 This t-test compares the total services provided by national and state-level providers. The results indicate a statistically significant difference (t = 9.9498, p-value < 2.2e-16). National providers offer substantially more services on average (244,433.90) compared to state providers (12,162.67), with a mean difference of approximately 232,271 services (95% CI: 186,513 to 278,029).
 
 #### T-Test: Summary of Results
@@ -915,7 +968,7 @@ In order to increase this study's validity, a variety of data manipulation strat
 Statistical evaluations showed substantial correlations between physician submissions and Medicare reimbursement, although non-linear trends influenced by outliers were evidenced. Regression analysis showed that beneficiaries have a direct impact on providers, though with wide variability between states. T-tests comparing physicians on a national scale and a state-by-state scale showed statistically significant differences in physician submissions, support given by Medicare through payment aid, and total services. Physicians on a national scale receive greater compensation on average. The outcomes point toward systemic inequalities in Medicare resource provision, which may necessitate adjustments in reimbursement systems for greater equality between different levels of physicians. 
 
 ### **Next Steps: Future Research and Policy Considerations**  
-This study sought to discover substantial patterns in Medicare provision, cost variability, and reimbursement differences between different geographic regions for medical practitioners. Future studies may consider examining factors underlying medical specialties in producing these differences and analyzing lasting influences of Medicare policy on medical care access. For example, one limitation of the dataset's information was the lack of co-insurance data for beneficaries. This made it difficult to determine if Medicare coverage was intentionally low for outside coverage. In addition, a study of supplemental coverage on financing Medicare support may provide insights on patient financing practices. Policymaking may be enhanced by examining ways of simplifying reimbursement systems, ultimately reducing physician compensation and Medicare financing disparities, which in return, can increase care access throughout the country. This continued study is aimed at further understanding Medicare's critical position in Medicare provision in the United States.
+This study sought to discover substantial patterns in Medicare provision, cost variability, and reimbursement differences between different geographic regions for medical practitioners. Future studies may consider examining factors underlying medical specialties in producing these differences and analyzing lasting influences of Medicare policy on medical care access. For example, one limitation of the dataset's information was the lack of co-insurance data for beneficiaries. This made it difficult to determine if Medicare coverage was intentionally low for outside coverage. In addition, a study of supplemental coverage on financing Medicare support may provide insights on patient financing practices. Policy-making may be enhanced by examining ways of simplifying reimbursement systems, ultimately reducing physician compensation and Medicare financing disparities, which in return, can increase care access throughout the country. This continued study is aimed at further understanding Medicare's critical position in Medicare provision in the United States.
 
 ![](https://pbs.twimg.com/media/GkvpM3NaoAUA1A0?format=jpg&name=medium)
 
